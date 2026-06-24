@@ -1,4 +1,4 @@
-# DevSecOps Pipeline — Personal Task Manager
+# DevSecOps Pipeline - Personal Task Manager
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-2.3.2-black?logo=flask)
@@ -8,9 +8,9 @@
 ![SIEM](https://img.shields.io/badge/SIEM-Wazuh%20%7C%20Grafana-orange)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-> End-to-end DevSecOps case study built during the **[Hackers do Bem](https://hackersdobem.org.br) DevSecOps Specialization (3rd cohort)** — a free, RNP/SENAI-backed national cybersecurity training program. A Python/Flask task manager was used as the target application to practice security engineering across the full SDLC: versioning → automated testing → containerization → CI/CD → SAST/SCA/DAST → SIEM monitoring.
+> End-to-end DevSecOps case study built during the **[Hackers do Bem](https://hackersdobem.org.br) DevSecOps Specialization (3rd cohort)** - a free, RNP/SENAI-backed national cybersecurity training program. A Python/Flask task manager was used as the target application to practice security engineering across the full SDLC: versioning → automated testing → containerization → CI/CD → SAST/SCA/DAST → SIEM monitoring.
 
-> **⚠️ Educational lab, not production code.** The application intentionally contains a hardcoded secret key, an outdated dependency, and missing security headers — these are the realistic findings the pipeline below is designed to catch, not oversights.
+> **!! Educational lab, not production code !!** The application intentionally contains a hardcoded secret key, an outdated dependency, and missing security headers - these are the realistic findings the pipeline below is designed to catch, not oversights.
 
 ## Table of Contents
 
@@ -77,14 +77,14 @@ Git Flow with `feature/*` branches. The CI pipeline runs automatically on every 
 | `feat/task-search` | Task search feature, pipeline green before merge |
 
 ![Auth hardening merge request, approved and merged on GitLab](screenshots/01-mr-auth-hardening.png)
-*MR `feat/authentication-hardening` — approved and merged into `main` after a green pipeline.*
+*MR `feat/authentication-hardening` - approved and merged into `main` after a green pipeline.*
 
 ![Task search merge request with passing pipeline](screenshots/02-mr-task-search.png)
-*MR `feat/task-search` — pipeline passing, ready to merge.*
+*MR `feat/task-search` - pipeline passing, ready to merge.*
 
 ## Stage 3 - Automated Tests
 
-A pytest suite covering authentication flows, task CRUD, access control, and redirect validation. Tests run in an isolated Python 3.11 container on every push — **no security stage runs unless tests pass first.**
+A pytest suite covering authentication flows, task CRUD, access control, and redirect validation. Tests run in an isolated Python 3.11 container on every push - **no security stage runs unless tests pass first.**
 
 ![pytest suite passing in the terminal](screenshots/03-pytest-results.png)
 *Full suite passing in 12.14s. SQLAlchemy deprecation warnings are visible but non-blocking.*
@@ -94,7 +94,7 @@ A pytest suite covering authentication flows, task CRUD, access control, and red
 The application is packaged with a `python:3.11-slim` base image to reduce attack surface. The same Dockerfile used locally is reused by the DAST stage as the ZAP scan target, ensuring dev/CI parity.
 
 ![docker compose up starting the Flask application](screenshots/04-docker-compose-up.png)
-*`docker compose up` — Flask application started with real-time logs. (Werkzeug debugger PIN redacted.)*
+*`docker compose up` - Flask application started with real-time logs. (Werkzeug debugger PIN redacted.)*
 
 ![Task manager application running in the browser](screenshots/05-app-running.png)
 *Task Manager running at `localhost:5000`.*
@@ -111,23 +111,23 @@ stages:
 ```
 
 ![GitLab pipeline with test and build stages passing](screenshots/06-gitlab-pipeline.png)
-*Pipeline — test and build successful. The `scan` stage executes Bandit, OWASP Dependency-Check, and ZAP in parallel.*
+*Pipeline - test and build successful. The `scan` stage executes Bandit, OWASP Dependency-Check, and ZAP in parallel.*
 
-> **Lesson learned:** GitLab's reserved `dast` stage name (Ultimate tier) causes immediate pipeline failure on lower tiers — renaming it to `scan` resolved it.
+> **Lesson learned:** GitLab's reserved `dast` stage name (Ultimate tier) causes immediate pipeline failure on lower tiers - renaming it to `scan` resolved it.
 
 ## Stage 6 - SAST: Static Security Analysis
 
 Bandit analyzes Python source code for known insecure patterns. OWASP Dependency-Check performs SCA against the NVD/CVE database.
 
 ![Bandit report flagging a hardcoded secret key](screenshots/07-bandit-report.png)
-*Bandit — `B105` (CWE-259): hardcoded `SECRET_KEY` detected in `__init__.py:11`. Severity: Low, Confidence: Medium.*
+*Bandit - `B105` (CWE-259): hardcoded `SECRET_KEY` detected in `__init__.py:11`. Severity: Low, Confidence: Medium.*
 
 ![OWASP Dependency-Check HTML report](screenshots/08-owasp-dependency-check.png)
-*OWASP Dependency-Check — Jinja2 3.1.3 flagged with an XSS CVE (Medium); `pyjwt` outdated.*
+*OWASP Dependency-Check - Jinja2 3.1.3 flagged with an XSS CVE (Medium); `pyjwt` outdated.*
 
 **Findings:**
-- `B105` — hardcoded `SECRET_KEY` (kept intentionally for demonstration)
-- Jinja2 3.1.3 — Cross-Site Scripting vulnerability
+- `B105` - hardcoded `SECRET_KEY` (kept intentionally for demonstration)
+- Jinja2 3.1.3 - Cross-Site Scripting vulnerability
 - Outdated transitive dependencies detected by SCA but invisible to SAST
 
 ## Stage 7 - DAST: Dynamic Security Analysis
@@ -135,24 +135,24 @@ Bandit analyzes Python source code for known insecure patterns. OWASP Dependency
 OWASP ZAP Baseline Scan runs against the containerized application inside the CI pipeline, in an isolated `zapnet` Docker network.
 
 ![Flask container logs during the ZAP scan](screenshots/09-zap-docker-logs.png)
-*Flask container logs during the ZAP scan — automated crawler requests and `LOGIN_FAILED` events visible.*
+*Flask container logs during the ZAP scan - automated crawler requests and `LOGIN_FAILED` events visible.*
 
 ![ZAP baseline scan HTML report](screenshots/10-zap-report.png)
-*ZAP Baseline Report — alerts for missing CSP, `X-Content-Type-Options`, `Permissions-Policy`, and CORP headers.*
+*ZAP Baseline Report - alerts for missing CSP, `X-Content-Type-Options`, `Permissions-Policy`, and CORP headers.*
 
 **Findings:**
 - Missing `Content-Security-Policy` header
 - `Server` header exposing version information
 - Missing `Permissions-Policy` and `Cross-Origin-Resource-Policy`
 
-> **Pipeline design note:** in this project the DAST job builds its own Docker image internally (via Docker-in-Docker) and runs *before* the official `build` stage. The findings are equally valid since the source code is identical, but in a production pipeline DAST should run *after* `build` — pulling the published image from the registry to guarantee that the artifact scanned is byte-for-byte the same one that gets deployed.
+> **Pipeline design note:** in this project the DAST job builds its own Docker image internally (via Docker-in-Docker) and runs *before* the official `build` stage. The findings are equally valid since the source code is identical, but in a production pipeline DAST should run *after* `build` - pulling the published image from the registry to guarantee that the artifact scanned is byte-for-byte the same one that gets deployed.
 
 ## Stage 8 - SIEM: Monitoring with Wazuh and Grafana
 
 The Wazuh agent on Windows collects Flask container logs via a PowerShell script (`docker logs -f` piped into a syslog file with `program_name: task-manager`). The Wazuh Manager processes them with custom decoders, Promtail ships them to Loki, and Grafana visualizes them via LogQL.
 
 ![Grafana Wazuh Security Alerts dashboard](screenshots/11-grafana-wazuh-dashboard.png)
-*Grafana — "Wazuh Security Alerts" dashboard: `LOGIN_FAILED` (rule 100100, level 5) and brute-force (rule 100101, level 10) events from the Task Manager, indexed via Promtail/Loki.*
+*Grafana - "Wazuh Security Alerts" dashboard: `LOGIN_FAILED` (rule 100100, level 5) and brute-force (rule 100101, level 10) events from the Task Manager, indexed via Promtail/Loki.*
 
 **Custom detection rules (MITRE ATT&CK mapped):**
 
@@ -160,7 +160,7 @@ The Wazuh agent on Windows collects Flask container logs via a PowerShell script
 |---|---|---|
 | 100100 | `LOGIN_FAILED` | T1110 – Brute Force |
 | 100101 | Brute-force threshold | T1110.001 |
-| 100102 | `ACCESS_DENIED` | — |
+| 100102 | `ACCESS_DENIED` | - |
 | 100104 | Privilege escalation | T1068 |
 
 ## Lessons Learned
