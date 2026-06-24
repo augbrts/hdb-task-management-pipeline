@@ -179,11 +179,6 @@ docker compose up --build
 ```
 
 The app will be available at `http://localhost:5000`.
-
-## License
-
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
-
 ---
 
 **Author:** Augusto Bretas Moura
