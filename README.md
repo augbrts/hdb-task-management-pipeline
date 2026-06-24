@@ -6,7 +6,6 @@
 ![GitLab CI](https://img.shields.io/badge/CI%2FCD-GitLab-FC6D26?logo=gitlab&logoColor=white)
 ![DevSecOps](https://img.shields.io/badge/DevSecOps-SAST%20%7C%20SCA%20%7C%20DAST-success)
 ![SIEM](https://img.shields.io/badge/SIEM-Wazuh%20%7C%20Grafana-orange)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 > End-to-end DevSecOps case study built during the **[Hackers do Bem](https://hackersdobem.org.br) DevSecOps Specialization (3rd cohort)** - a free, RNP/SENAI-backed national cybersecurity training program. A Python/Flask task manager was used as the target application to practice security engineering across the full SDLC: versioning → automated testing → containerization → CI/CD → SAST/SCA/DAST → SIEM monitoring.
 
